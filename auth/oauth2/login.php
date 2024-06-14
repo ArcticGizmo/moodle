@@ -26,6 +26,7 @@ require_once('../../config.php');
 
 $issuerid = required_param('id', PARAM_INT);
 $wantsurl = new moodle_url(optional_param('wantsurl', '', PARAM_URL));
+$authprompt = new moodle_url(optional_param('prompt', '', PARAM_URL));
 
 $PAGE->set_context(context_system::instance());
 $PAGE->set_url(new moodle_url('/auth/oauth2/login.php', ['id' => $issuerid]));
@@ -47,8 +48,14 @@ $returnurl = new moodle_url('/auth/oauth2/login.php', $returnparams);
 $client = \core\oauth2\api::get_user_oauth_client($issuer, $returnurl);
 
 if ($client) {
+    $login_url = $client->get_login_url();
+
+    if ($authprompt != "") {
+        $login_url = $login_url . '&prompt=' . $authprompt;
+    } 
+
     if (!$client->is_logged_in()) {
-        redirect($client->get_login_url());
+        redirect($login_url);
     }
 
     $auth = new \auth_oauth2\auth();
@@ -56,4 +63,3 @@ if ($client) {
 } else {
     throw new moodle_exception('Could not get an OAuth client.');
 }
-
