@@ -31,7 +31,10 @@ $authprompt = new moodle_url(optional_param('prompt', '', PARAM_URL));
 $PAGE->set_context(context_system::instance());
 $PAGE->set_url(new moodle_url('/auth/oauth2/login.php', ['id' => $issuerid]));
 
-require_sesskey();
+// I think that removing this check is fine because this is an interactive flow.
+// With this removed we can redirect users directly to http://{domain}/auth/oauth2/login.php?id=1&wantsurl=%2F
+// from INX Cloud
+// require_sesskey();
 
 if (!\auth_oauth2\api::is_enabled()) {
     throw new \moodle_exception('notenabled', 'auth_oauth2');
